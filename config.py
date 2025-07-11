@@ -1,21 +1,32 @@
 import os
 
 class Config:
-  ENV = bool(os.environ.get('ENV', False))
-  if ENV:
-    BOT_TOKEN = os.environ.get('5108584452:AAEho-p2BfK50lXHJXiuZ4GW_bIwnxWgpOE')
-    APP_ID = os.environ.get('1285960')
-    API_HASH = os.environ.get('92cdc4ce35d12b12a626f165de3c577a')
-    DATABASE_URL = os.environ.get('postgres://cllugvzfhgujmg:f6f3ed14b89844ffd57c6d1a6c8f33b6f106382a1ac0c86e177f2710230f6f3a@ec2-35-175-68-90.compute-1.amazonaws.com:5432/ddmq6krb1rlkcn')
-  else:
-    BOT_TOKEN = '5108584452:AAEho-p2BfK50lXHJXiuZ4GW_bIwnxWgpOE' # Get it from https://t.me/BotFather
-    APP_ID = '1285960' # Get it from my.telegram.org/apps
-    API_HASH = '92cdc4ce35d12b12a626f165de3c577a92cdc4ce35d12b12a626f165de3c577a' # Get it from my.telegram.org/apps
-    DATABASE_URL = 'postgres://cllugvzfhgujmg:f6f3ed14b89844ffd57c6d1a6c8f33b6f106382a1ac0c86e177f2710230f6f3a@ec2-35-175-68-90.compute-1.amazonaws.com:5432/ddmq6krb1rlkcn' # SQL Database URL / Heroku Postgres URL
+    ENV = bool(os.environ.get('ENV', False))
+    
+    # Security: Use environment variables only
+    BOT_TOKEN = os.environ.get('BOT_TOKEN')
+    APP_ID = os.environ.get('APP_ID')
+    API_HASH = os.environ.get('API_HASH')
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    
+    # Validate required environment variables
+    if not BOT_TOKEN:
+        raise ValueError("BOT_TOKEN environment variable is required")
+    if not APP_ID:
+        raise ValueError("APP_ID environment variable is required")
+    if not API_HASH:
+        raise ValueError("API_HASH environment variable is required")
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL environment variable is required")
+    
+    # Convert APP_ID to integer
+    try:
+        APP_ID = int(APP_ID)
+    except ValueError:
+        raise ValueError("APP_ID must be a valid integer")
 
 
 class Messages:
-
     START_MSG = "**Hi there {}.**\n__I'm Google Drive Uploader Bot.You can use me to upload any file / video to Google Drive from direct link or Telegram Files.__\n__You can know more from /help.__"
 
     HELP_MSG = [
@@ -35,4 +46,4 @@ class Messages:
         "**Rules & Precautions**\n__1. Don't copy BIG Google Drive Files/Folders. It may hang the bot and your files maybe damaged.\n2. Send One request at a time unless bot will stop all processes.\n3. Don't send slow links @transload it first.\n4. Don't misuse, overload or abuse this free service.__",
         
         "**Developed by @viperadnan**"
-        ]
+    ]

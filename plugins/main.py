@@ -67,16 +67,16 @@ async def download_file(client, message, sent_message):
     dl.start()
     return dl.get_dest()
   except HTTPError:
+    await sent_message.edit('❗ **Download Failed:** HTTP Error occurred')
     return 'HTTPError'
-    await sent_message.reply_text(url)
   except Exception as e:
     await sent_message.edit(f'📥 **Downloading...**\n**Filename:** ```{custom_file_name}```\n__Downloader failed trying again.__')
     try:
       filename = wget.download(url, dl_path)
       return os.path.join(f"downloads/{filename}")
     except HTTPError:
+      await sent_message.edit('❗ **Download Failed:** HTTP Error on retry')
       return 'HTTPError'
-      await sent_message.reply_text(url)
 
 
 def humanbytes(size: int) -> str:

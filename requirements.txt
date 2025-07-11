@@ -1,12 +1,21 @@
-wget
-asyncio
-https://github.com/pyrogram/pyrogram/archive/asyncio.zip
-tgcrypto
-oauth2client
-psycopg2-binary
-sqlalchemy
-httplib2
-pySmartDL
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
+# Core Telegram Bot Framework
+pyrogram==2.0.106
+tgcrypto==1.2.5
+
+# Google Drive API
+google-api-python-client==2.103.0
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+oauth2client==4.1.3
+
+# Database
+psycopg2-binary==2.9.7
+sqlalchemy==2.0.21
+
+# HTTP and Download Libraries
+httplib2==0.22.0
+pySmartDL==1.3.4
+
+# Async File Operations (recommended additions)
+aiohttp==3.8.6
+aiofiles==23.2.0

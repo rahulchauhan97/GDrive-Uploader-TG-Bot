@@ -4,6 +4,7 @@ import wget
 import json
 import time
 import asyncio
+from typing import Optional, Union, Any
 from pyrogram import Client, Filters
 from config import Messages as tr
 from config import Config
@@ -13,7 +14,13 @@ from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
 
 
-async def upload_file(creds, file_path, filesize, parent_id, message):
+async def upload_file(
+    creds: Any, 
+    file_path: str, 
+    filesize: str, 
+    parent_id: Optional[str], 
+    message: Any
+) -> Union[str, None]:
     service = build(
         "drive",
         "v3",

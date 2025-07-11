@@ -1,4 +1,5 @@
 import re
+import os
 from httplib2 import Http
 from pyrogram import Client, Filters
 from oauth2client.client import OAuth2WebServerFlow, FlowExchangeError
@@ -8,8 +9,17 @@ from helpers import parent_id_sql as sql
 OAUTH_SCOPE = "https://www.googleapis.com/auth/drive"
 REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"
 G_DRIVE_DIR_MIME_TYPE = "application/vnd.google-apps.folder"
-G_DRIVE_CLIENT_ID = "197036948433-4sjgjrj1osm5b5neu8khh7c2nsvn96f7.apps.googleusercontent.com"
-G_DRIVE_CLIENT_SECRET = "dnXoMIu2V7HQ8G8RicrKmvlu"
+
+# Security: Use environment variables for sensitive data
+G_DRIVE_CLIENT_ID = os.environ.get('GDRIVE_CLIENT_ID')
+G_DRIVE_CLIENT_SECRET = os.environ.get('GDRIVE_CLIENT_SECRET')
+
+# Validate required Google Drive credentials
+if not G_DRIVE_CLIENT_ID:
+    raise ValueError("GDRIVE_CLIENT_ID environment variable is required")
+if not G_DRIVE_CLIENT_SECRET:
+    raise ValueError("GDRIVE_CLIENT_SECRET environment variable is required")
+
 flow = None
 
 @Client.on_message(Filters.private & Filters.incoming & Filters.command(['auth']))

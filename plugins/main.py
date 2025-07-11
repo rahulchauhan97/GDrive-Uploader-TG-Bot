@@ -9,6 +9,7 @@ from pySmartDL import SmartDL
 from plugins.uploader import upload_file
 from helpers import gDrive_sql as db
 from helpers import parent_id_sql as sql
+from helpers.utils import humanbytes
 from urllib.error import HTTPError
 
 @Client.on_message(Filters.private & Filters.incoming & (Filters.audio | Filters.photo | Filters.video | Filters.document | Filters.regex('^(ht|f)tp*')))
@@ -78,21 +79,4 @@ async def download_file(client, message, sent_message):
       return 'HTTPError'
       await sent_message.reply_text(url)
 
-
-def humanbytes(size: int) -> str:
-    if not size:
-        return ""
-    power = 2 ** 10
-    number = 0
-    dict_power_n = {
-        0: " ",
-        1: "K",
-        2: "M",
-        3: "G",
-        4: "T",
-        5: "P"
-    }
-    while size > power:
-        size /= power
-        number += 1
-    return str(round(size, 2)) + " " + dict_power_n[number] + 'B'
+# humanbytes moved to helpers.utils for reuse and better performance

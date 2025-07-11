@@ -3,15 +3,21 @@ import os
 class Config:
   ENV = bool(os.environ.get('ENV', False))
   if ENV:
-    BOT_TOKEN = os.environ.get('5108584452:AAEho-p2BfK50lXHJXiuZ4GW_bIwnxWgpOE')
-    APP_ID = os.environ.get('1285960')
-    API_HASH = os.environ.get('92cdc4ce35d12b12a626f165de3c577a')
-    DATABASE_URL = os.environ.get('postgres://cllugvzfhgujmg:f6f3ed14b89844ffd57c6d1a6c8f33b6f106382a1ac0c86e177f2710230f6f3a@ec2-35-175-68-90.compute-1.amazonaws.com:5432/ddmq6krb1rlkcn')
+    # Expect standard variable names to be exported in the runtime environment
+    # so that secrets never live inside the codebase.
+    BOT_TOKEN = os.environ.get('BOT_TOKEN')
+    APP_ID = int(os.environ.get('APP_ID', '0')) if os.environ.get('APP_ID') else None
+    API_HASH = os.environ.get('API_HASH')
+    DATABASE_URL = os.environ.get('DATABASE_URL')
   else:
-    BOT_TOKEN = '5108584452:AAEho-p2BfK50lXHJXiuZ4GW_bIwnxWgpOE' # Get it from https://t.me/BotFather
-    APP_ID = '1285960' # Get it from my.telegram.org/apps
-    API_HASH = '92cdc4ce35d12b12a626f165de3c577a92cdc4ce35d12b12a626f165de3c577a' # Get it from my.telegram.org/apps
-    DATABASE_URL = 'postgres://cllugvzfhgujmg:f6f3ed14b89844ffd57c6d1a6c8f33b6f106382a1ac0c86e177f2710230f6f3a@ec2-35-175-68-90.compute-1.amazonaws.com:5432/ddmq6krb1rlkcn' # SQL Database URL / Heroku Postgres URL
+    # Fallback values for local development only. Do **NOT** commit your
+    # real tokens/credentials into source control. Replace the placeholders
+    # below with your own values *locally* or use a .env file that is
+    # excluded from version control.
+    BOT_TOKEN = 'YOUR_BOT_TOKEN'
+    APP_ID = 0  # Placeholder; set your APP_ID integer here
+    API_HASH = 'YOUR_API_HASH'
+    DATABASE_URL = 'sqlite:///gdrive_uploader.db'  # Default to local sqlite
 
 
 class Messages:

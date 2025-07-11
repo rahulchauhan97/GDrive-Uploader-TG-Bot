@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import os
 import re
 import json
 from pyrogram import Client, Filters
 from helpers import gDrive_sql as db
-from plugins.main import humanbytes
+from helpers.utils import humanbytes
 from plugins.token import getIdFromUrl
 from helpers import parent_id_sql as sql
 from googleapiclient.discovery import build
@@ -52,27 +54,65 @@ def copyFile(service, file_id, dest_id):
                return 'error'
 
 
-def cloneFolder(service, name, local_path, folder_id, parent_id, transferred_size):
+def clone_folder(
+    service,
+    folder_id: str,
+    parent_id: str | None,
+    *,
+    transferred_size: int = 0,
+) -> tuple[str, int]:
+    """Recursively clone a Google-Drive folder.
+
+    Parameters
+    ----------
+    service : Resource
+        Google-Drive service instance.
+    folder_id : str
+        ID of the source folder that needs to be cloned.
+    parent_id : str | None
+        ID of the destination parent directory (where the clone should live).
+    transferred_size : int, optional
+        Accumulator for the total size of the files copied so far. This value
+        is updated on every recursive call and returned.
+
+    Returns
+    -------
+    tuple[str, int]
+        (new_folder_id, total_size_copied)
+    """
+
     files = getFilesByFolderId(service, folder_id)
-    new_id = None
-    if len(files) == 0:
-        return parent_id
-    for file in files:
-        if file.get('mimeType') == G_DRIVE_DIR_MIME_TYPE:
-            file_path = os.path.join(local_path, file.get('name'))
-            current_dir_id = create_directory(service, file.get('name'), parent_id)
-            new_id = cloneFolder(service, file.get('name'), file_path, file.get('id'), current_dir_id)
+
+    # Return early for empty folders so that the parent stays intact.
+    if not files:
+        return parent_id, transferred_size
+
+    new_folder_id = parent_id
+
+    for item in files:
+        mime_type = item.get("mimeType")
+        item_id = item.get("id")
+        item_name = item.get("name")
+
+        if mime_type == G_DRIVE_DIR_MIME_TYPE:
+            # Create the corresponding directory in the destination and
+            # recurse into it.
+            child_dir_id = create_directory(service, item_name, parent_id)
+            new_folder_id, transferred_size = clone_folder(
+                service,
+                item_id,
+                child_dir_id,
+                transferred_size=transferred_size,
+            )
         else:
             try:
-                transferred_size += int(file.get('size'))
-            except TypeError:
+                transferred_size += int(item.get("size", 0))
+            except (TypeError, ValueError):
                 pass
-            try:
-                copyFile(service, file.get('id'), parent_id)
-                new_id = parent_id
-            except Exception as e:
-                return 'error'
-    return new_id, transferred_size
+
+            copyFile(service, item_id, parent_id)
+
+    return new_folder_id, transferred_size
 
 def create_directory(service, directory_name, parent_id):
         file_metadata = {
@@ -126,7 +166,7 @@ async def _copy(client, message):
     if meta.get("mimeType") == G_DRIVE_DIR_MIME_TYPE:
        dir_id = create_directory(service, meta.get('name'), parent_id)
        try:
-         result, transferred_size = cloneFolder(service, meta.get('name'), meta.get('name'), meta.get('id'), dir_id, transferred_size)
+         _, transferred_size = clone_folder(service, meta.get('id'), dir_id)
          await sent_message.edit(f"✅ **Copied successfully.**\n[{meta.get('name')}]({G_DRIVE_FOLDER_LINK.format(dir_id)}) __({humanbytes(transferred_size)})__")
        except Exception as e:
          await sent_message.edit(f'**ERROR:** ```{e}```')
